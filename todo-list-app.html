@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        #todo-form {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        #todo-input {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+        }
+        #add-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        #todo-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .todo-item {
+            background-color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            transition: opacity 0.3s ease;
+        }
+        .todo-item.completed {
+            opacity: 0.6;
+        }
+        .todo-item span {
+            flex-grow: 1;
+            margin-left: 10px;
+        }
+        .todo-item button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+        .edit-input {
+            flex-grow: 1;
+            margin: 0 10px;
+            padding: 5px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>📝 Todo List</h1>
+    <form id="todo-form">
+        <input type="text" id="todo-input" placeholder="Enter a new task" required>
+        <button type="submit" id="add-button">Add</button>
+    </form>
+    <ul id="todo-list"></ul>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const todoForm = document.getElementById('todo-form');
+            const todoInput = document.getElementById('todo-input');
+            const todoList = document.getElementById('todo-list');
+
+            todoForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                addTodo();
+            });
+
+            function addTodo() {
+                const todoText = todoInput.value.trim();
+                if (todoText === '') return;
+
+                const li = createTodoItem(todoText);
+                todoList.appendChild(li);
+                todoInput.value = '';
+            }
+
+            function createTodoItem(text) {
+                const li = document.createElement('li');
+                li.className = 'todo-item';
+                li.innerHTML = `
+                    <button onclick="toggleComplete(this)">✅</button>
+                    <span>${text}</span>
+                    <button onclick="editTodo(this)">📝</button>
+                    <button onclick="deleteTodo(this)">❌</button>
+                `;
+                return li;
+            }
+
+            window.toggleComplete = function(button) {
+                button.parentElement.classList.toggle('completed');
+            }
+
+            window.editTodo = function(button) {
+                const li = button.parentElement;
+                const span = li.querySelector('span');
+                const text = span.textContent;
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = text;
+                input.className = 'edit-input';
+
+                const saveButton = document.createElement('button');
+                saveButton.textContent = '💾';
+                saveButton.onclick = function() {
+                    span.textContent = input.value;
+                    li.innerHTML = `
+                        <button onclick="toggleComplete(this)">✅</button>
+                        <span>${input.value}</span>
+                        <button onclick="editTodo(this)">📝</button>
+                        <button onclick="deleteTodo(this)">❌</button>
+                    `;
+                };
+
+                li.innerHTML = '';
+                li.appendChild(input);
+                li.appendChild(saveButton);
+                input.focus();
+            }
+
+            window.deleteTodo = function(button) {
+                button.parentElement.remove();
+            }
+        });
+    </script>
+</body>
+</html>

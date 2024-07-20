@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Bingo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        #bingo-card {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin-top: 20px;
+        }
+        .cell {
+            width: 80px;
+            height: 80px;
+            font-size: 2em;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .cell.marked {
+            background-color: #ffcc00;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        #new-game {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #new-game:hover {
+            background-color: #45a049;
+        }
+        .header {
+            font-weight: bold;
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Number Bingo</h1>
+        <div id="bingo-card"></div>
+        <div id="message"></div>
+        <button id="new-game">New Game</button>
+    </div>
+    <script>
+        const bingoCard = document.getElementById('bingo-card');
+        const messageEl = document.getElementById('message');
+        const newGameBtn = document.getElementById('new-game');
+        let markedCells = new Set();
+
+        function getRandomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function createBingoCard() {
+            bingoCard.innerHTML = '';
+            markedCells.clear();
+            messageEl.textContent = '';
+            
+            const headers = ['B', 'I', 'N', 'G', 'O'];
+            headers.forEach(header => {
+                const cell = document.createElement('div');
+                cell.className = 'cell header';
+                cell.textContent = header;
+                bingoCard.appendChild(cell);
+            });
+
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j < 5; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    let number;
+                    do {
+                        number = getRandomNumber(i * 15 + 1, (i + 1) * 15);
+                    } while ([...bingoCard.children].some(c => c.textContent == number));
+                    cell.textContent = number;
+                    cell.addEventListener('click', () => toggleCell(i * 5 + j + 5));
+                    bingoCard.appendChild(cell);
+                }
+            }
+        }
+
+        function toggleCell(index) {
+            const cell = bingoCard.children[index];
+            cell.classList.toggle('marked');
+            if (markedCells.has(index)) {
+                markedCells.delete(index);
+            } else {
+                markedCells.add(index);
+                checkWin();
+            }
+        }
+
+        function checkWin() {
+            const winPatterns = [
+                [5, 6, 7, 8, 9],
+                [10, 11, 12, 13, 14],
+                [15, 16, 17, 18, 19],
+                [20, 21, 22, 23, 24],
+                [25, 26, 27, 28, 29],
+                [5, 10, 15, 20, 25],
+                [6, 11, 16, 21, 26],
+                [7, 12, 17, 22, 27],
+                [8, 13, 18, 23, 28],
+                [9, 14, 19, 24, 29],
+                [5, 11, 17, 23, 29],
+                [9, 13, 17, 21, 25]
+            ];
+
+            for (const pattern of winPatterns) {
+                if (pattern.every(index => markedCells.has(index))) {
+                    messageEl.textContent = '🎉 Bingo! You won! 🎉';
+                    return;
+                }
+            }
+        }
+
+        newGameBtn.addEventListener('click', createBingoCard);
+        createBingoCard();
+    </script>
+</body>
+</html>
