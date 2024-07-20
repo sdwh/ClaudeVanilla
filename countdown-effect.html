@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快速隨機數字倒數效果</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        #counter {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="counter">999999</div>
+    <script>
+        const counter = document.getElementById('counter');
+        let count = 1000000000;
+        const startTime = Date.now();
+        const duration = 8000; // 5秒
+
+        function updateCounter() {
+            const elapsedTime = Date.now() - startTime;
+            if (elapsedTime < duration && count > 0) {
+                // 計算剩餘時間的比例
+                const remainingTimeRatio = 1 - (elapsedTime / duration);
+                // 根據剩餘時間的比例計算最大可減少值
+                const maxDecrease = Math.max(1, Math.floor(count * (1 - remainingTimeRatio)));
+                // 隨機減少的數值
+                const decrease = Math.floor(Math.random() * maxDecrease) + 1;
+                count = Math.max(0, count - decrease);
+                
+                counter.textContent = count.toString().padStart(9, '0');
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent = '000000000';
+            }
+        }
+
+        updateCounter();
+    </script>
+</body>
+</html>
