@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swimming Competition Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f8ff;
+        }
+        .pool {
+            width: 600px;
+            height: 300px;
+            background-color: #00bfff;
+            position: relative;
+            margin-bottom: 20px;
+            border: 5px solid #4682b4;
+        }
+        .lane {
+            height: 60px;
+            border-bottom: 2px solid #87cefa;
+            position: relative;
+        }
+        .swimmer {
+            font-size: 40px;
+            position: absolute;
+            left: 0;
+            transition: left 5s linear;
+        }
+        .swimmer-name {
+            position: absolute;
+            left: 5px;
+            top: 5px;
+            font-size: 14px;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+        }
+        @keyframes swim {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .swimming {
+            animation: swim 0.5s infinite;
+        }
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        .betting {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .bet-button {
+            font-size: 16px;
+            padding: 5px 10px;
+        }
+        #result {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Swimming Competition Game</h1>
+    <div class="betting">
+        <button class="bet-button" data-swimmer="0">Bet on Webber</button>
+        <button class="bet-button" data-swimmer="1">Bet on Jeff</button>
+        <button class="bet-button" data-swimmer="2">Bet on Andy</button>
+        <button class="bet-button" data-swimmer="3">Bet on Peter</button>
+    </div>
+    <div class="pool">
+        <div class="lane"><span class="swimmer-name">Webber</span><span class="swimmer" id="swimmer0">🏊🏿</span></div>
+        <div class="lane"><span class="swimmer-name">Jeff</span><span class="swimmer" id="swimmer1">🏊🏿‍♂️</span></div>
+        <div class="lane"><span class="swimmer-name">Andy</span><span class="swimmer" id="swimmer2">🏊🏻‍♂️</span></div>
+        <div class="lane"><span class="swimmer-name">Peter</span><span class="swimmer" id="swimmer3">🏊‍♂️</span></div>
+    </div>
+    <button id="startButton">Start Race</button>
+    <div id="result"></div>
+
+    <script>
+        const swimmers = document.querySelectorAll('.swimmer');
+        const startButton = document.getElementById('startButton');
+        const resultDiv = document.getElementById('result');
+        const betButtons = document.querySelectorAll('.bet-button');
+        let userBet = null;
+        const swimmerNames = ['Webber', 'Jeff', 'Andy', 'Peter'];
+
+        betButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                userBet = parseInt(button.dataset.swimmer);
+                betButtons.forEach(btn => btn.disabled = true);
+                resultDiv.textContent = `You bet on ${swimmerNames[userBet]}`;
+            });
+        });
+
+        startButton.addEventListener('click', startRace);
+
+        function startRace() {
+            if (userBet === null) {
+                alert('Please place a bet before starting the race!');
+                return;
+            }
+
+            startButton.disabled = true;
+            resultDiv.textContent = '';
+            let raceFinished = false;
+
+            swimmers.forEach((swimmer, index) => {
+                const duration = 3 + Math.random() * 4; // Random duration between 3 and 7 seconds
+                swimmer.style.transition = `left ${duration}s linear`;
+                swimmer.style.left = '90%';
+                swimmer.classList.add('swimming');
+
+                swimmer.ontransitionend = () => {
+                    if (!raceFinished) {
+                        raceFinished = true;
+                        determineWinner(index);
+                    }
+                };
+            });
+        }
+
+        function determineWinner(winnerIndex) {
+            swimmers.forEach(swimmer => {
+                swimmer.style.transition = 'none';
+                swimmer.classList.remove('swimming');
+            });
+
+            const winnerName = swimmerNames[winnerIndex];
+            resultDiv.textContent = `${winnerName} wins!`;
+
+            if (winnerIndex === userBet) {
+                resultDiv.textContent += ' Congratulations, you won the bet!';
+            } else {
+                resultDiv.textContent += ' Sorry, you lost the bet.';
+            }
+
+            // Reset for a new game
+            setTimeout(() => {
+                swimmers.forEach(swimmer => {
+                    swimmer.style.left = '0';
+                });
+                startButton.disabled = false;
+                betButtons.forEach(btn => btn.disabled = false);
+                userBet = null;
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

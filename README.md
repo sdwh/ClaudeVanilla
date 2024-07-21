@@ -5,3 +5,4 @@
 - [Bingo](https://sdwh.dev/ClaudeVanilla/bingo.html)
 - [Todolist](https://sdwh.dev/ClaudeVanilla/todo-list-app.html)
 - [Memory Card Game](https://sdwh.dev/ClaudeVanilla/memory-card-game.html)
+- [Swimming Competition](https://sdwh.dev/ClaudeVanilla/swimming-competition.html)
