@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        .calendar {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            font-family: Arial, sans-serif;
+        }
+
+        .month-header {
+            background-color: #f0f0f0;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background-color: #e0e0e0;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background-color: #ddd;
+        }
+
+        .day {
+            background-color: white;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .day:hover {
+            opacity: 0.8;
+        }
+
+        .empty {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="calendar">
+        <div class="month-header">2025年1月</div>
+        <div class="weekdays">
+            <div>日</div>
+            <div>一</div>
+            <div>二</div>
+            <div>三</div>
+            <div>四</div>
+            <div>五</div>
+            <div>六</div>
+        </div>
+        <div class="days" id="days"></div>
+    </div>
+
+    <script>
+        function createCalendar() {
+            const daysContainer = document.getElementById('days');
+            const month = 0;// 9 代表 10 月 (0-11)
+            const firstDay = new Date(2025, month, 1);
+            const lastDay = new Date(2025, month + 1, 0);
+            const startingDay = firstDay.getDay();
+
+            // 添加空白天數
+            for (let i = 0; i < startingDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'day empty';
+                daysContainer.appendChild(emptyDay);
+            }
+
+            // 添加日期
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'day';
+                dayElement.textContent = day;
+                dayElement.onclick = function () {
+                    cycleBackgroundColor(this);
+                };
+                daysContainer.appendChild(dayElement);
+            }
+        }
+
+        function cycleBackgroundColor(element) {
+            const colors = ['teal', 'coral', 'white',];
+            const currentColor = element.style.backgroundColor;
+            const currentIndex = colors.indexOf(currentColor);
+            const nextIndex = (currentIndex + 1) % colors.length;
+            element.style.backgroundColor = colors[nextIndex];
+        }
+
+        createCalendar();
+    </script>
+</body>
+
+</html>
