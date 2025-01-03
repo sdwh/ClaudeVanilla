@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Text Analyzer</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .container {
+            display: flex;
+            gap: 40px; /* Increased gap between input and output */
+        }
+
+        .text-area {
+            flex: 1;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            margin: 10px 0 20px 0; /* Increased margin bottom */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+            line-height: 1.5; /* Improved text readability */
+        }
+
+        .stats {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px; /* Increased margin */
+            line-height: 1.6; /* Improved readability of stats */
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px; /* Increased margin */
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #0052a3;
+        }
+
+        .stats-label {
+            color: #666;
+            display: inline-block;
+            width: 160px; /* Fixed width for labels */
+        }
+    </style>
+</head>
+<body>
+    <h1>Text Analyzer</h1>
+    
+    <div class="container">
+        <div class="text-area">
+            <h3>Input Text</h3>
+            <textarea id="inputText" placeholder="Paste your text here..."></textarea>
+            
+            <div class="stats" id="stats">
+                <div><span class="stats-label">Total Characters:</span> <span id="charCount">0</span></div>
+                <div><span class="stats-label">Words:</span> <span id="wordCount">0</span></div>
+                <div><span class="stats-label">Traditional Chinese:</span> <span id="chineseCount">0</span></div>
+                <div><span class="stats-label">Japanese:</span> <span id="japaneseCount">0</span></div>
+                <div><span class="stats-label">English:</span> <span id="englishCount">0</span></div>
+                <div><span class="stats-label">Digits:</span> <span id="digitCount">0</span></div>
+                <div><span class="stats-label">Punctuation:</span> <span id="punctCount">0</span></div>
+            </div>
+
+            <div class="filters">
+                <div class="filter-option">
+                    <input type="checkbox" id="filterChinese" checked>
+                    <label for="filterChinese">Chinese</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="filterJapanese" checked>
+                    <label for="filterJapanese">Japanese</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="filterEnglish" checked>
+                    <label for="filterEnglish">English</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="filterDigits" checked>
+                    <label for="filterDigits">Digits</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="filterPunct" checked>
+                    <label for="filterPunct">Punctuation</label>
+                </div>
+            </div>
+
+            <button onclick="filterText()">Filter Text</button>
+        </div>
+
+        <div class="text-area">
+            <h3>Filtered Output</h3>
+            <textarea id="outputText" placeholder="Filtered text will appear here..." readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+
+        // Character ranges
+        const chineseRange = /[\u4e00-\u9fff]/;
+        const japaneseRange = /[\u3040-\u309f\u30a0-\u30ff]/;
+        const englishRange = /[a-zA-Z]/;
+        const digitRange = /[0-9]/;
+        const punctRange = /[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~。，、；：？！…—·「」『』（）［］【】《》〈〉""'']/;
+
+        function updateStats() {
+            const text = inputText.value;
+            
+            // Update total character count
+            document.getElementById('charCount').textContent = text.length;
+            
+            // Update word count (split by whitespace)
+            document.getElementById('wordCount').textContent = 
+                text.trim().split(/\s+/).filter(word => word.length > 0).length;
+            
+            // Count different types of characters
+            let chineseCount = 0;
+            let japaneseCount = 0;
+            let englishCount = 0;
+            let digitCount = 0;
+            let punctCount = 0;
+
+            for (const char of text) {
+                if (chineseRange.test(char)) chineseCount++;
+                if (japaneseRange.test(char)) japaneseCount++;
+                if (englishRange.test(char)) englishCount++;
+                if (digitRange.test(char)) digitCount++;
+                if (punctRange.test(char)) punctCount++;
+            }
+
+            document.getElementById('chineseCount').textContent = chineseCount;
+            document.getElementById('japaneseCount').textContent = japaneseCount;
+            document.getElementById('englishCount').textContent = englishCount;
+            document.getElementById('digitCount').textContent = digitCount;
+            document.getElementById('punctCount').textContent = punctCount;
+        }
+
+        function filterText() {
+            const text = inputText.value;
+            const includeChinese = document.getElementById('filterChinese').checked;
+            const includeJapanese = document.getElementById('filterJapanese').checked;
+            const includeEnglish = document.getElementById('filterEnglish').checked;
+            const includeDigits = document.getElementById('filterDigits').checked;
+            const includePunct = document.getElementById('filterPunct').checked;
+
+            let filteredText = '';
+            
+            for (const char of text) {
+                let shouldInclude = false;
+
+                if (chineseRange.test(char) && includeChinese) shouldInclude = true;
+                else if (japaneseRange.test(char) && includeJapanese) shouldInclude = true;
+                else if (englishRange.test(char) && includeEnglish) shouldInclude = true;
+                else if (digitRange.test(char) && includeDigits) shouldInclude = true;
+                else if (punctRange.test(char) && includePunct) shouldInclude = true;
+                else if (!chineseRange.test(char) && 
+                         !japaneseRange.test(char) && 
+                         !englishRange.test(char) && 
+                         !digitRange.test(char) &&
+                         !punctRange.test(char)) shouldInclude = true;
+
+                if (shouldInclude) filteredText += char;
+            }
+
+            outputText.value = filteredText;
+        }
+
+        // Add event listeners
+        inputText.addEventListener('input', updateStats);
+    </script>
+</body>
+</html>
