@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .time-input {
+            margin: 20px;
+            padding: 15px;
+            font-size: 18px;
+            width: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .button {
+            padding: 12px 30px;
+            font-size: 18px;
+            background: linear-gradient(45deg, #00b4d8, #48cae4);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3);
+        }
+
+        .hourglass {
+            width: 120px;
+            height: 240px;
+            position: relative;
+            margin: 40px auto;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.1));
+            transform-origin: center center;
+            /* 移除原本的旋轉動畫 */
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        .hourglass.flipping {
+            animation: flip 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .top, .bottom {
+            width: 120px;
+            height: 120px;
+            position: absolute;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 
+                inset 0 0 20px rgba(255, 255, 255, 0.2),
+                0 0 15px rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+        }
+
+        .top {
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            top: 0;
+        }
+
+        .bottom {
+            clip-path: polygon(50% 0, 100% 100%, 0 100%);
+            bottom: 0;
+        }
+
+        .sand-top, .sand-bottom {
+            width: 125px;
+            position: absolute;
+            left: 0;
+            transition: height 0.1s linear;
+            box-shadow: 
+                0 0 20px rgba(255, 215, 0, 0.3),
+                inset 0 0 10px rgba(255, 215, 0, 0.2);
+        }
+
+        .sand-top {
+            top: 0;
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            background: linear-gradient(180deg, 
+                #ffd700 0%,
+                #ffc400 25%,
+                #ffb300 50%,
+                #ffa500 75%,
+                #ff9500 100%
+            );
+            filter: brightness(1.3) contrast(1.2) saturate(1.2);
+            animation: sandPulseTop 2s ease-in-out infinite;
+            height: 120px; /* 初始時填滿上方 */
+        }
+
+        .sand-bottom {
+            bottom: 0;
+            clip-path: polygon(50% 0, 100% 100%, 0 100%);
+            background: linear-gradient(180deg, 
+                #ff9500 0%,
+                #ffa500 25%,
+                #ffb300 50%,
+                #ffc400 75%,
+                #ffd700 100%
+            );
+            filter: brightness(1.3) contrast(1.2) saturate(1.2);
+            animation: sandPulseBottom 2s ease-in-out infinite;
+            height: 0px; /* 初始時底部為空 */
+        }
+
+        @keyframes sandPulseTop {
+            0%, 100% { transform: scaleY(1); filter: brightness(1.2); }
+            50% { transform: scaleY(0.98); filter: brightness(1.3); }
+        }
+
+        @keyframes sandPulseBottom {
+            0%, 100% { transform: scaleY(1); filter: brightness(1.2); }
+            50% { transform: scaleY(1.02); filter: brightness(1.3); }
+        }
+
+        .falling-particles {
+            position: absolute;
+            width: 4px;
+            left: 58px;
+            top: 120px;
+            height: 120px;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle at center,
+                #ffd700 0%,
+                #ff9500 100%
+            );
+            border-radius: 50%;
+            animation: fall 1s linear infinite;
+            opacity: 0;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+        }
+
+        .particle:nth-child(1) { animation-delay: 0s; }
+        .particle:nth-child(2) { animation-delay: 0.3s; }
+        .particle:nth-child(3) { animation-delay: 0.6s; }
+        .particle:nth-child(4) { animation-delay: 0.15s; }
+        .particle:nth-child(5) { animation-delay: 0.45s; }
+        .particle:nth-child(6) { animation-delay: 0.75s; }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            20% {
+                transform: translateY(24px) scale(1.1);
+                opacity: 0.8;
+            }
+            40% {
+                transform: translateY(48px) scale(1);
+                opacity: 0.6;
+            }
+            60% {
+                transform: translateY(72px) scale(1.1);
+                opacity: 0.4;
+            }
+            80% {
+                transform: translateY(96px) scale(1);
+                opacity: 0.2;
+            }
+            100% {
+                transform: translateY(120px) scale(1.1);
+                opacity: 0;
+            }
+        }
+
+        .time-display {
+            font-size: 36px;
+            margin: 20px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            font-family: 'Courier New', monospace;
+        }
+
+        .error {
+            color: #ff6b6b;
+            margin: 10px;
+            display: none;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Add glow animation */
+        @keyframes glow {
+            0%, 100% { filter: brightness(1) drop-shadow(0 0 10px rgba(255, 215, 0, 0.3)); }
+            50% { filter: brightness(1.2) drop-shadow(0 0 15px rgba(255, 215, 0, 0.5)); }
+        }
+
+        /* 修改翻轉動畫 */
+        @keyframes flip {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(180deg); }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <input type="number" class="time-input" placeholder="Enter time (seconds)" min="5" max="3600">
+        <button class="button">Start</button>
+        <div class="error">Please enter a time between 5 seconds and 1 hour</div>
+        <div class="hourglass">
+            <div class="top"></div>
+            <div class="bottom"></div>
+            <div class="sand-top"></div>
+            <div class="sand-bottom"></div>
+            <div class="falling-particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        <div class="time-display">00:00</div>
+    </div>
+
+    <script>
+        const input = document.querySelector('.time-input');
+        const button = document.querySelector('.button');
+        const error = document.querySelector('.error');
+        const timeDisplay = document.querySelector('.time-display');
+        const sandTop = document.querySelector('.sand-top');
+        const sandBottom = document.querySelector('.sand-bottom');
+        const fallingParticles = document.querySelector('.falling-particles');
+
+        let timer;
+        let timeLeft;
+        let totalTime;
+        let isRunning = false;
+
+        function validateInput(value) {
+            return value >= 5 && value <= 3600;
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+        }
+
+        function updateSand() {
+            const progress = timeLeft / totalTime;
+            const sandHeight = 120;
+            sandTop.style.height = `${progress * sandHeight}px`;
+            sandBottom.style.height = `${(1 - progress) * sandHeight}px`;
+        }
+
+        function startTimer() {
+            if (timer) {
+                clearInterval(timer);
+            }
+            
+            timeLeft = parseInt(input.value);
+            totalTime = timeLeft;
+            
+            if (!validateInput(timeLeft)) {
+                error.style.display = 'block';
+                return;
+            }
+            
+            error.style.display = 'none';
+            isRunning = true;
+            button.textContent = 'Reset';
+            input.disabled = true;
+
+            // 初始化沙子狀態
+            sandTop.style.height = '120px';
+            sandBottom.style.height = '0px';
+
+            const hourglass = document.querySelector('.hourglass');
+
+            setTimeout(() => {
+                fallingParticles.style.display = 'block';
+                updateSand();
+                timeDisplay.textContent = formatTime(timeLeft);
+
+                timer = setInterval(() => {
+                    timeLeft--;
+                    timeDisplay.textContent = formatTime(timeLeft);
+                    updateSand();
+
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        resetTimer();
+                    }
+                }, 1000);
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            isRunning = false;
+            button.textContent = 'Start';
+            input.disabled = false;
+            timeDisplay.textContent = '00:00';
+            sandTop.style.height = '120px';
+            sandBottom.style.height = '0px';
+            fallingParticles.style.display = 'none';
+            
+            // 確保沙漏回到原始位置
+            const hourglass = document.querySelector('.hourglass');
+            hourglass.style.transform = 'rotate(0deg)';
+        }
+
+        // 頁面載入時初始化沙子位置
+        window.addEventListener('load', () => {
+            sandTop.style.height = '120px';
+            sandBottom.style.height = '0px';
+        });
+
+        button.addEventListener('click', () => {
+            if (!isRunning) {
+                startTimer();
+            } else {
+                resetTimer();
+            }
+        });
+
+        input.addEventListener('input', () => {
+            error.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
