@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卡牌開包遊戲</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>卡牌開包遊戲</h1>
+            <div class="user-stats">
+                <span id="user-money">金幣: 1000</span>
+                <span id="pack-price">卡包價格: 200金幣</span>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="pack-section">
+                <h2>開啟卡包</h2>
+                <div class="pack">
+                    <img src="pack.png" alt="卡包" id="pack-image" onerror="this.src='https://via.placeholder.com/200x300/876543/FFFFFF?text=卡包'">
+                    <button id="open-pack-btn">開啟卡包</button>
+                </div>
+                <div id="cards-result" class="cards-container"></div>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="collection">我的收藏</button>
+                <button class="tab-btn" data-tab="shop">商店</button>
+            </div>
+            
+            <div id="collection" class="tab-content active">
+                <h2>我的卡牌收藏</h2>
+                <div class="filter-container">
+                    <select id="rarity-filter">
+                        <option value="all">全部稀有度</option>
+                        <option value="normal">普通</option>
+                        <option value="rare">稀有</option>
+                        <option value="ultra-rare">超稀有</option>
+                        <option value="crown">王冠</option>
+                    </select>
+                </div>
+                <div id="collection-container" class="cards-grid"></div>
+            </div>
+            
+            <div id="shop" class="tab-content">
+                <h2>商店</h2>
+                <p>在這裡出售你的卡牌以獲得金幣!</p>
+                <div id="sell-container" class="cards-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 卡牌詳情模態框 -->
+    <div id="card-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div id="modal-card-details"></div>
+            <div class="modal-actions">
+                <button id="sell-card-btn">售出</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>

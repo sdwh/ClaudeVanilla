@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>国旗猜谜游戏</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #f0f8ff;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .game-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .flag {
+            font-size: 100px;
+            margin: 20px 0;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #3498db;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .score {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            min-height: 20px;
+        }
+
+        .correct {
+            color: green;
+        }
+
+        .incorrect {
+            color: red;
+        }
+
+        .next-btn {
+            margin-top: 20px;
+            background-color: #2ecc71;
+        }
+
+        .next-btn:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <h1>国旗猜谜游戏</h1>
+        <div class="score">得分: <span id="score">0</span></div>
+        <div class="flag" id="flag"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="options" id="options"></div>
+        <button class="next-btn" id="next-btn" style="display: none;">下一题</button>
+    </div>
+
+    <script>
+        // 国家和对应的国旗数据
+        const countries = [
+            { name: "中國", flag: "🇨🇳" },
+            { name: "美國", flag: "🇺🇸" },
+            { name: "日本", flag: "🇯🇵" },
+            { name: "英國", flag: "🇬🇧" },
+            { name: "法國", flag: "🇫🇷" },
+            { name: "德國", flag: "🇩🇪" },
+            { name: "意大利", flag: "🇮🇹" },
+            { name: "加拿大", flag: "🇨🇦" },
+            { name: "澳大利亞", flag: "🇦🇺" },
+            { name: "俄羅斯", flag: "🇷🇺" },
+            { name: "巴西", flag: "🇧🇷" },
+            { name: "印度", flag: "🇮🇳" },
+            { name: "南非", flag: "🇿🇦" },
+            { name: "墨西哥", flag: "🇲🇽" },
+            { name: "韓國", flag: "🇰🇷" },
+            { name: "西班牙", flag: "🇪🇸" },
+            { name: "新加坡", flag: "🇸🇬" },
+            { name: "埃及", flag: "🇪🇬" },
+            { name: "瑞典", flag: "🇸🇪" },
+            { name: "瑞士", flag: "🇨🇭" }
+        ];
+
+        // 游戏状态变量
+        let currentFlag;
+        let score = 0;
+        let optionsDisabled = false;
+
+        // 获取DOM元素
+        const flagElement = document.getElementById('flag');
+        const optionsElement = document.getElementById('options');
+        const scoreElement = document.getElementById('score');
+        const feedbackElement = document.getElementById('feedback');
+        const nextButton = document.getElementById('next-btn');
+
+        // 随机选择数组中的元素
+        function getRandomItem(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        // 获取随机的不重复选项
+        function getRandomOptions(correctAnswer, count) {
+            const options = [correctAnswer];
+            const availableCountries = countries.filter(country => country.name !== correctAnswer.name);
+
+            while (options.length < count && availableCountries.length > 0) {
+                const randomCountry = getRandomItem(availableCountries);
+                if (!options.find(option => option.name === randomCountry.name)) {
+                    options.push(randomCountry);
+                    // 从可用国家中移除已选择的国家
+                    const index = availableCountries.findIndex(c => c.name === randomCountry.name);
+                    if (index !== -1) {
+                        availableCountries.splice(index, 1);
+                    }
+                }
+            }
+
+            // 打乱选项顺序
+            return options.sort(() => Math.random() - 0.5);
+        }
+
+        // 开始新一轮游戏
+        function startNewRound() {
+            // 清除反馈和启用选项
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
+            optionsDisabled = false;
+            nextButton.style.display = 'none';
+
+            // 随机选择一个国家
+            currentFlag = getRandomItem(countries);
+            flagElement.textContent = currentFlag.flag;
+
+            // 生成选项
+            const options = getRandomOptions(currentFlag, 4);
+
+            // 清除旧选项并添加新选项
+            optionsElement.innerHTML = '';
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option.name;
+                button.addEventListener('click', () => checkAnswer(option));
+                optionsElement.appendChild(button);
+            });
+        }
+
+        // 检查答案
+        function checkAnswer(selectedOption) {
+            if (optionsDisabled) return;
+
+            optionsDisabled = true;
+
+            if (selectedOption.name === currentFlag.name) {
+                // 答案正确
+                score++;
+                scoreElement.textContent = score;
+                feedbackElement.textContent = '回答正确！';
+                feedbackElement.className = 'feedback correct';
+            } else {
+                // 答案错误
+                feedbackElement.textContent = `回答错误！正确答案是 ${currentFlag.name}`;
+                feedbackElement.className = 'feedback incorrect';
+            }
+
+            // 显示下一题按钮
+            nextButton.style.display = 'inline-block';
+        }
+
+        // 添加下一题按钮事件监听器
+        nextButton.addEventListener('click', startNewRound);
+
+        // 初始化游戏
+        startNewRound();
+    </script>
+</body>
+
+</html>

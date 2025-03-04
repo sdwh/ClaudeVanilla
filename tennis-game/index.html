@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>網球遊戲</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="score-board">
+            <div class="player-score">玩家: <span id="player-score">0</span></div>
+            <div class="computer-score">電腦: <span id="computer-score">0</span></div>
+        </div>
+        
+        <div class="court">
+            <div class="net"></div>
+            <div class="player" id="player"></div>
+            <div class="computer" id="computer"></div>
+            <div class="ball" id="ball"></div>
+        </div>
+        
+        <div class="controls">
+            <button id="move-left">左移</button>
+            <button id="hit">擊球</button>
+            <button id="move-right">右移</button>
+            <button id="dash">衝刺</button>
+        </div>
+        
+        <div class="message" id="message">按擊球開始遊戲!</div>
+        <button id="restart" class="restart-btn">重新開始</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
