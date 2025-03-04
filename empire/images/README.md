@@ -1,5 +1,7 @@
 # 遊戲圖像資源
 
+https://api.together.ai/playground/image/black-forest-labs/FLUX.1-schnell
+
 這個目錄包含遊戲所需的所有圖像。您需要為以下項目創建或獲取圖像:
 
 ## 資源圖示

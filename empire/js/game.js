@@ -74,7 +74,6 @@ function initGame() {
     updatePopulationDisplay();
     updateAssignmentDisplay();
     updateButtonStates();
-    initCharts();
     
     // 添加事件監聽器
     document.querySelectorAll('.unit-btn').forEach(btn => {
