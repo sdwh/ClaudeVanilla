@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>帝國時代模擬遊戲</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1>帝國時代模擬</h1>
+            <div class="resources">
+                <div class="resource" id="food">
+                    <img src="images/food.png" alt="食物">
+                    <span>0</span>
+                </div>
+                <div class="resource" id="wood">
+                    <img src="images/wood.png" alt="木材">
+                    <span>0</span>
+                </div>
+                <div class="resource" id="gold">
+                    <img src="images/gold.png" alt="黃金">
+                    <span>0</span>
+                </div>
+                <div class="resource" id="stone">
+                    <img src="images/stone.png" alt="石頭">
+                    <span>0</span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="game-panel">
+                <div class="production-panel">
+                    <h2>建造單位</h2>
+                    <div class="units">
+                        <button class="unit-btn" data-unit="farmer">
+                            <img src="images/farmer.png" alt="農民">
+                            <span>農民</span>
+                        </button>
+                        <button class="unit-btn" data-unit="soldier">
+                            <img src="images/soldier.png" alt="士兵">
+                            <span>士兵</span>
+                        </button>
+                        <button class="unit-btn" data-unit="archer">
+                            <img src="images/archer.png" alt="弓箭手">
+                            <span>弓箭手</span>
+                        </button>
+                        <button class="unit-btn" data-unit="knight">
+                            <img src="images/knight.png" alt="騎士">
+                            <span>騎士</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tech-panel">
+                    <h2>科技升級</h2>
+                    <div class="techs">
+                        <button class="tech-btn" data-tech="farming">
+                            <img src="images/farming.png" alt="農業">
+                            <span>農業</span>
+                        </button>
+                        <button class="tech-btn" data-tech="lumbering">
+                            <img src="images/lumbering.png" alt="伐木">
+                            <span>伐木</span>
+                        </button>
+                        <button class="tech-btn" data-tech="mining">
+                            <img src="images/mining.png" alt="採礦">
+                            <span>採礦</span>
+                        </button>
+                        <button class="tech-btn" data-tech="military">
+                            <img src="images/military.png" alt="軍事">
+                            <span>軍事</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="stats-panel">
+                    <h2>人口統計</h2>
+                    <div class="population">
+                        <p>總人口: <span id="population-count">0</span>/100</p>
+                    </div>
+                    <div class="population-details">
+                        <p>農民: <span id="farmer-count">0</span></p>
+                        <p>士兵: <span id="soldier-count">0</span></p>
+                        <p>弓箭手: <span id="archer-count">0</span></p>
+                        <p>騎士: <span id="knight-count">0</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-panel">
+                <h2>帝國實力</h2>
+                <canvas id="power-chart"></canvas>
+                <div class="chart-tabs">
+                    <button class="chart-tab active" data-chart="power">軍事力量</button>
+                    <button class="chart-tab" data-chart="resources">資源生產</button>
+                    <button class="chart-tab" data-chart="tech">科技水平</button>
+                </div>
+            </div>
+        </main>
+
+        <div class="assignment-panel">
+            <h2>人員分配</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>資源</th>
+                        <th>已分配人員</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-resource="food">
+                        <td>採集食物</td>
+                        <td><span class="assigned-count">0</span></td>
+                        <td>
+                            <button class="assign-btn" data-action="add">+</button>
+                            <button class="assign-btn" data-action="remove">-</button>
+                        </td>
+                    </tr>
+                    <tr data-resource="wood">
+                        <td>伐木</td>
+                        <td><span class="assigned-count">0</span></td>
+                        <td>
+                            <button class="assign-btn" data-action="add">+</button>
+                            <button class="assign-btn" data-action="remove">-</button>
+                        </td>
+                    </tr>
+                    <tr data-resource="gold">
+                        <td>採金</td>
+                        <td><span class="assigned-count">0</span></td>
+                        <td>
+                            <button class="assign-btn" data-action="add">+</button>
+                            <button class="assign-btn" data-action="remove">-</button>
+                        </td>
+                    </tr>
+                    <tr data-resource="stone">
+                        <td>採石</td>
+                        <td><span class="assigned-count">0</span></td>
+                        <td>
+                            <button class="assign-btn" data-action="add">+</button>
+                            <button class="assign-btn" data-action="remove">-</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <div class="game-log">
+            <h3>遊戲日誌</h3>
+            <div id="log-content"></div>
+        </div>
+    </div>
+
+    <script src="js/game.js"></script>
+</body>
+</html>
