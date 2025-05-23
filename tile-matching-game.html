@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Match Puzzle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .score, .moves {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tile {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tile:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .tile.selected {
+            background: rgba(255, 255, 0, 0.9);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.6);
+        }
+
+        .tile.matching {
+            animation: matchPulse 0.6s ease-in-out;
+        }
+
+        .tile.falling {
+            animation: fall 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes matchPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); background: rgba(255, 100, 100, 0.9); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        @keyframes fall {
+            from {
+                transform: translateY(-100px);
+                opacity: 0.7;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .combo-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+            z-index: 1000;
+            animation: comboShow 1.5s ease-out forwards;
+        }
+
+        @keyframes comboShow {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .game-over-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎮 Emoji Match 🎮</h1>
+        <div class="game-info">
+            <div class="score">Score: <span id="score">0</span></div>
+            <div class="moves">Moves: <span id="moves">50</span></div>
+        </div>
+        <div id="gameBoard" class="game-board"></div>
+    </div>
+
+    <div id="gameOver" class="game-over hidden">
+        <div class="game-over-content">
+            <h2>🎉 Game Over! 🎉</h2>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <button class="restart-btn" onclick="restartGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        class EmojiMatchGame {
+            constructor() {
+                this.board = [];
+                this.selectedTile = null;
+                this.score = 0;
+                this.moves = 50;
+                this.boardSize = 8;
+                this.emojis = ['🍎', '🍊', '🍌', '🍇', '🍓', '🥝', '🍒', '🥭'];
+                this.isProcessing = false;
+                this.comboCount = 0;
+                
+                this.initGame();
+            }
+
+            initGame() {
+                this.createBoard();
+                this.renderBoard();
+                this.updateScore();
+                this.updateMoves();
+                this.removeInitialMatches();
+            }
+
+            createBoard() {
+                this.board = [];
+                for (let row = 0; row < this.boardSize; row++) {
+                    this.board[row] = [];
+                    for (let col = 0; col < this.boardSize; col++) {
+                        this.board[row][col] = this.getRandomEmoji();
+                    }
+                }
+            }
+
+            getRandomEmoji() {
+                return this.emojis[Math.floor(Math.random() * this.emojis.length)];
+            }
+
+            renderBoard() {
+                const gameBoard = document.getElementById('gameBoard');
+                gameBoard.innerHTML = '';
+                
+                for (let row = 0; row < this.boardSize; row++) {
+                    for (let col = 0; col < this.boardSize; col++) {
+                        const tile = document.createElement('div');
+                        tile.className = 'tile';
+                        tile.textContent = this.board[row][col];
+                        tile.dataset.row = row;
+                        tile.dataset.col = col;
+                        tile.addEventListener('click', () => this.handleTileClick(row, col));
+                        gameBoard.appendChild(tile);
+                    }
+                }
+            }
+
+            handleTileClick(row, col) {
+                if (this.isProcessing || this.moves <= 0) return;
+
+                const clickedTile = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                
+                if (!this.selectedTile) {
+                    this.selectedTile = { row, col };
+                    clickedTile.classList.add('selected');
+                } else if (this.selectedTile.row === row && this.selectedTile.col === col) {
+                    this.deselectTile();
+                } else if (this.areAdjacent(this.selectedTile, { row, col })) {
+                    this.swapTiles(this.selectedTile, { row, col });
+                } else {
+                    this.deselectTile();
+                    this.selectedTile = { row, col };
+                    clickedTile.classList.add('selected');
+                }
+            }
+
+            areAdjacent(tile1, tile2) {
+                const rowDiff = Math.abs(tile1.row - tile2.row);
+                const colDiff = Math.abs(tile1.col - tile2.col);
+                return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+            }
+
+            async swapTiles(tile1, tile2) {
+                this.isProcessing = true;
+                
+                // Swap values
+                const temp = this.board[tile1.row][tile1.col];
+                this.board[tile1.row][tile1.col] = this.board[tile2.row][tile2.col];
+                this.board[tile2.row][tile2.col] = temp;
+                
+                this.renderBoard();
+                
+                // Check for matches
+                const matches = this.findMatches();
+                if (matches.length > 0) {
+                    this.moves--;
+                    this.updateMoves();
+                    await this.processMatches();
+                } else {
+                    // Swap back if no matches
+                    const temp = this.board[tile1.row][tile1.col];
+                    this.board[tile1.row][tile1.col] = this.board[tile2.row][tile2.col];
+                    this.board[tile2.row][tile2.col] = temp;
+                    this.renderBoard();
+                }
+                
+                this.deselectTile();
+                this.isProcessing = false;
+                
+                if (this.moves <= 0) {
+                    this.endGame();
+                }
+            }
+
+            deselectTile() {
+                document.querySelectorAll('.tile.selected').forEach(tile => {
+                    tile.classList.remove('selected');
+                });
+                this.selectedTile = null;
+            }
+
+            findMatches() {
+                const matches = [];
+                
+                // Check horizontal matches
+                for (let row = 0; row < this.boardSize; row++) {
+                    let count = 1;
+                    let currentEmoji = this.board[row][0];
+                    
+                    for (let col = 1; col < this.boardSize; col++) {
+                        if (this.board[row][col] === currentEmoji) {
+                            count++;
+                        } else {
+                            if (count >= 3) {
+                                for (let i = col - count; i < col; i++) {
+                                    matches.push({ row, col: i });
+                                }
+                            }
+                            count = 1;
+                            currentEmoji = this.board[row][col];
+                        }
+                    }
+                    
+                    if (count >= 3) {
+                        for (let i = this.boardSize - count; i < this.boardSize; i++) {
+                            matches.push({ row, col: i });
+                        }
+                    }
+                }
+                
+                // Check vertical matches
+                for (let col = 0; col < this.boardSize; col++) {
+                    let count = 1;
+                    let currentEmoji = this.board[0][col];
+                    
+                    for (let row = 1; row < this.boardSize; row++) {
+                        if (this.board[row][col] === currentEmoji) {
+                            count++;
+                        } else {
+                            if (count >= 3) {
+                                for (let i = row - count; i < row; i++) {
+                                    matches.push({ row: i, col });
+                                }
+                            }
+                            count = 1;
+                            currentEmoji = this.board[row][col];
+                        }
+                    }
+                    
+                    if (count >= 3) {
+                        for (let i = this.boardSize - count; i < this.boardSize; i++) {
+                            matches.push({ row: i, col });
+                        }
+                    }
+                }
+                
+                return matches;
+            }
+
+            async processMatches() {
+                let totalMatches = 0;
+                this.comboCount = 0;
+                
+                while (true) {
+                    const matches = this.findMatches();
+                    if (matches.length === 0) break;
+                    
+                    totalMatches += matches.length;
+                    this.comboCount++;
+                    
+                    // Animate matching tiles
+                    matches.forEach(match => {
+                        const tile = document.querySelector(`[data-row="${match.row}"][data-col="${match.col}"]`);
+                        if (tile) tile.classList.add('matching');
+                    });
+                    
+                    await this.delay(600);
+                    
+                    // Remove matched tiles
+                    matches.forEach(match => {
+                        this.board[match.row][match.col] = null;
+                    });
+                    
+                    // Drop tiles
+                    this.dropTiles();
+                    this.fillEmptySpaces();
+                    this.renderBoard();
+                    
+                    // Add falling animation
+                    document.querySelectorAll('.tile').forEach(tile => {
+                        tile.classList.add('falling');
+                    });
+                    
+                    await this.delay(500);
+                    
+                    document.querySelectorAll('.tile').forEach(tile => {
+                        tile.classList.remove('falling', 'matching');
+                    });
+                }
+                
+                // Calculate score
+                const baseScore = totalMatches * 10;
+                const comboBonus = this.comboCount > 1 ? (this.comboCount - 1) * 50 : 0;
+                const totalScore = baseScore + comboBonus;
+                
+                this.score += totalScore;
+                this.updateScore();
+                
+                if (this.comboCount > 1) {
+                    this.showComboNotification();
+                }
+            }
+
+            dropTiles() {
+                for (let col = 0; col < this.boardSize; col++) {
+                    let writePos = this.boardSize - 1;
+                    
+                    for (let row = this.boardSize - 1; row >= 0; row--) {
+                        if (this.board[row][col] !== null) {
+                            this.board[writePos][col] = this.board[row][col];
+                            if (writePos !== row) {
+                                this.board[row][col] = null;
+                            }
+                            writePos--;
+                        }
+                    }
+                }
+            }
+
+            fillEmptySpaces() {
+                for (let col = 0; col < this.boardSize; col++) {
+                    for (let row = 0; row < this.boardSize; row++) {
+                        if (this.board[row][col] === null) {
+                            this.board[row][col] = this.getRandomEmoji();
+                        }
+                    }
+                }
+            }
+
+            async removeInitialMatches() {
+                while (this.findMatches().length > 0) {
+                    await this.processMatches();
+                }
+            }
+
+            showComboNotification() {
+                const notification = document.createElement('div');
+                notification.className = 'combo-notification';
+                notification.textContent = `${this.comboCount}x COMBO! +${(this.comboCount - 1) * 50}`;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 1500);
+            }
+
+            updateScore() {
+                document.getElementById('score').textContent = this.score;
+            }
+
+            updateMoves() {
+                document.getElementById('moves').textContent = this.moves;
+            }
+
+            endGame() {
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('gameOver').classList.remove('hidden');
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+
+        let game;
+
+        function startGame() {
+            game = new EmojiMatchGame();
+        }
+
+        function restartGame() {
+            document.getElementById('gameOver').classList.add('hidden');
+            startGame();
+        }
+
+        // Initialize game when page loads
+        startGame();
+    </script>
+</body>
+</html>
